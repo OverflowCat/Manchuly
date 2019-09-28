@@ -6,7 +6,8 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const manchu = require('./ManchuCore')
-
+const fs = require("fs")
+var simplify = require("hanzi-tools").simplify
 function tag(text, tag){
   return ("<" + tag + ">" + text + "</" + tag + ">" )
 }
@@ -68,9 +69,13 @@ bot.use((ctx, next) => {
 bot.on('text', (ctx) => {
   
   var t = ctx.message.text
+  if(t == "/start") {
+    ctx.replyWithPhoto({url: "https://cdn.glitch.com/e41d8351-01f6-4af8-b0ee-bd4710cb3769%2FA7BA13F8-3D6B-475B-9D23-98649A31754E.jpeg?v=1569678896904"})
+    return ctx.replyWithHTML("欢迎使用 @OverflowCat 的满洲里 bot。阁下可以使用满语、转写或中文查询满语词汇。Github repo: https://github.com/OverflowCat/Manchuly")
+  }
   try {
-  if (escape(t).indexOf( "%u" ) >= 0){
-   var statement = {zh : new RegExp(t)}
+  if (/[\u4e00-\u9fa5]+/.test(t)){
+   var statement = {zh : new RegExp(simplify(t))}
   }else{
     if (manchu.isManchuScript(t)){
       var statement= {m : new RegExp(t,"gim")}
@@ -91,7 +96,7 @@ bot.on('text', (ctx) => {
     //docs = docs.slice(1)
     var l = docs.length
    if (l > 30){
-     docs = docs.slice(0,30)
+     docs = docs.slice(0,20)
    }
     var o
     
@@ -113,6 +118,9 @@ bot.on('text', (ctx) => {
 
 })
 //bot.command("")
+
+bot.command('start', ctx => {})
+  
 bot.launch()
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ', err);

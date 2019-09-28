@@ -2,6 +2,7 @@ dependencies:
   csvtojson: 2.0.10
   express: 4.16.4
   fast-json-stringify: 1.15.4
+  hanzi-tools: 1.2.9
   lodash: 4.17.15
   nedb: 1.8.0
   telegraf: 3.32.0
@@ -69,6 +70,14 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha1-0ygVQE1olpn4Wk6k+odV3ROpYEg=
+  /commander/1.1.1:
+    dependencies:
+      keypress: 0.1.0
+    dev: false
+    engines:
+      node: '>= 0.6.x'
+    resolution:
+      integrity: sha1-UNFlGGiuYOzP8KLZ80WVN2vGsEE=
   /content-disposition/0.5.2:
     dev: false
     engines:
@@ -228,6 +237,15 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
+  /hanzi-tools/1.2.9:
+    dependencies:
+      nodejieba: 2.3.2
+      pinyin: 2.9.0
+    dev: false
+    engines:
+      node: '>=6.0.0'
+    resolution:
+      integrity: sha512-a6pia5l91CGw0E8YZQRKEZ9oW6AJpvgHQtSyPl76f0PxNzonbfHrbzNkvxyvZrabWoR6w9GaxnAW4GcN8A0B6g==
   /http-errors/1.6.3:
     dependencies:
       depd: 1.1.2
@@ -269,6 +287,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==
+  /keypress/0.1.0:
+    dev: false
+    resolution:
+      integrity: sha1-SjGI1CkbZrT2XtuZ+AaqmuKTWSo=
   /lie/3.1.1:
     dependencies:
       immediate: 3.0.6
@@ -339,6 +361,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
+  /nan/2.14.0:
+    dev: false
+    resolution:
+      integrity: sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
   /nedb/1.8.0:
     dependencies:
       async: 0.2.10
@@ -361,6 +387,22 @@ packages:
       node: 4.x || >=6.0.0
     resolution:
       integrity: sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
+  /nodejieba/2.3.2:
+    dependencies:
+      nan: 2.14.0
+    dev: false
+    engines:
+      iojs: '>= 1.0.0'
+      node: '>= 0.10.0'
+    requiresBuild: true
+    resolution:
+      integrity: sha512-Dp3qb54D8QlpyaKYGOpkB0E/hAHB0oWWzE9RIkAGglY6KTQMeOUsM8NZ8Af9eirRZvpdXH9v6zDVpHRq04a7SA==
+  /object-assign/4.1.1:
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
   /on-finished/2.3.0:
     dependencies:
       ee-first: 1.1.1
@@ -379,6 +421,16 @@ packages:
     dev: false
     resolution:
       integrity: sha1-32BBeABfUi8V60SQ5yR6G/qmf4w=
+  /pinyin/2.9.0:
+    dependencies:
+      commander: 1.1.1
+      object-assign: 4.1.1
+    dev: false
+    hasBin: true
+    optionalDependencies:
+      nodejieba: 2.3.2
+    resolution:
+      integrity: sha512-TZYQ+2uE12arC1EfCeDmN5KgwIOuNMIweOotKvBZdhVOUuQc5RJsGEGf+BaSvxfVtu9ViYEFJmH0xTaj9t4n3Q==
   /proxy-addr/2.0.4:
     dependencies:
       forwarded: 0.1.2
@@ -546,6 +598,7 @@ specifiers:
   csvtojson: ^2.0.9
   express: ^4.16.4
   fast-json-stringify: ^1.15.4
+  hanzi-tools: ^1.2.9
   lodash: ^4.17.15
   nedb: ^1.8.0
   telegraf: ^3.32.0
