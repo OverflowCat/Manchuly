@@ -5,6 +5,8 @@
 const express = require('express');
 const app = express();
 const http = require('http');
+const manchu = require('./ManchuCore')
+
 function tag(text, tag){
   return ("<" + tag + ">" + text + "</" + tag + ">" )
 }
@@ -62,10 +64,31 @@ bot.use((ctx, next) => {
   })
 })
 
+
 bot.on('text', (ctx) => {
+  
   var t = ctx.message.text
-  db.find({ r: new RegExp(t, "gim")}, function (err, docs) {
-    docs = docs.slice(1)
+  try {
+  if (escape(t).indexOf( "%u" ) >= 0){
+   var statement = {zh : new RegExp(t)}
+  }else{
+    if (manchu.isManchuScript(t)){
+      var statement= {m : new RegExp(t,"gim")}
+    } else {
+      var statement = {r : new RegExp(t, "gim")}
+    }
+  }
+  }catch(err){
+    console.log (err) 
+    return ctx.reply(err)
+  }
+  db.find(statement, function (err, docs) {
+    if (err) {
+      console.log (err) 
+      return ctx.reply(err)
+    }
+    
+    //docs = docs.slice(1)
     var l = docs.length
    if (l > 30){
      docs = docs.slice(0,30)
@@ -78,14 +101,19 @@ bot.on('text', (ctx) => {
       {
         o += i + "\n"
       }
-      console.log (i)
+      //console.log (i)
     })
      //docs = "RESULTS OVERFLOW"
-    console.log(o)
+    //console.log(o)
     o = tag(t, "b") + ":\n" + o + tag(l + " result(s)", 'i')
     o = o.replace ("undefined", "")
+    
     ctx.replyWithHTML(o)
 });
 
 })
+//bot.command("")
 bot.launch()
+process.on('uncaughtException', function (err) {
+  console.log('Caught exception: ', err);
+});
