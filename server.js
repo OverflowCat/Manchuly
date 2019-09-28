@@ -5,7 +5,9 @@
 const express = require('express');
 const app = express();
 const http = require('http');
-
+function tag(text, tag){
+  return ("<" + tag + ">" + text + "</" + tag + ">" )
+}
 // we've started you off with Express, 
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
 
@@ -61,9 +63,28 @@ bot.use((ctx, next) => {
 })
 
 bot.on('text', (ctx) => {
-  db.find({ r: new RegExp(ctx.message.text, "gim")}, function (err, docs) {
-   if (docs.length > 30)docs = "RESULTS OVERFLOW"
-    ctx.reply(docs)
+  var t = ctx.message.text
+  db.find({ r: new RegExp(t, "gim")}, function (err, docs) {
+    docs = docs.slice(1)
+    var l = docs.length
+   if (l > 30){
+     docs = docs.slice(0,30)
+   }
+    var o
+    
+    docs.map(e => {
+      var i
+      i = [tag(e.m, "b"), tag(e.r, "code"), e.zh.join("；")].join(" ")
+      {
+        o += i + "\n"
+      }
+      console.log (i)
+    })
+     //docs = "RESULTS OVERFLOW"
+    console.log(o)
+    o = tag(t, "b") + ":\n" + o + tag(l + " result(s)", 'i')
+    o = o.replace ("undefined", "")
+    ctx.replyWithHTML(o)
 });
 
 })
