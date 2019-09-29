@@ -96,24 +96,24 @@ bot.on('text', (ctx) => {
 
     //docs = docs.slice(1)
     var l = docs.length;
-   if (l > 30){
-     docs = docs.slice(0,20)
+    var o = t.bold() + " with ".italics();
+    if (l > 30){
+     docs = docs.slice(0,20);
+     o += "20 of ".italics();
    }
-    var o;
+    o += l + " result".italics();
+    if (l>1){
+        o+= "s".italics();
+    }
+    o += ":\n".italics();
 
     docs.map(e => {
-      var i;
-      i = [tag(e.m, "b"), tag(e.r, "code"), e.zh.join("；")].join(" ");
-      {
-        o += i + "\n"
-      }
+      o += "- " + [e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") + "\n"
       //console.log (i)
     });
      //docs = "RESULTS OVERFLOW"
     //console.log(o)
-    o = tag(t, "b") + ":\n" + o + tag(l + " result(s)", 'i');
     o = o.replace ("undefined", "");
-
     ctx.replyWithHTML(o)
 });
 
