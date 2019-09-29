@@ -75,13 +75,45 @@ bot.on('text', (ctx) => {
     return ctx.replyWithHTML("欢迎使用 @OverflowCat 的满洲里 bot。阁下可以使用满语、转写或中文查询满语词汇。Github repo: https://github.com/OverflowCat/Manchuly")
   }
   try {
+  var statement, newSort;
   if (/[\u4e00-\u9fa5]+/.test(t)){
-   var statement = {zh : new RegExp(simplify(t))}
+    statement = {zh : new RegExp(simplify(t))};
+    newSort = function(array){
+        // Sort with length
+        array = array.sort(function(a,b){
+            return a.zh.join("；").length - b.zh.join("；").length;
+        });
+        // Sort with whole word match
+        array = array.sort(function(a,b){
+            a = a.zh.includes(simplify(t));
+            b = b.zh.includes(simplify(t));
+            return b-a;
+        });
+        return array;
+    }
   }else{
     if (manchu.isManchuScript(t)){
-      var statement= {m : new RegExp(t,"gim")}
+      statement= {m : new RegExp(t,"gim")};
+      newSort = function(array){
+        // Sort with whole word match
+        array = array.sort(function(a,b){
+            a = a.m.replace("/"," ").split(" ").includes(simplify(t));
+            b = b.m.replace("/"," ").split(" ").includes(simplify(t));
+            return b-a;
+        });
+        return array;
+      }
     } else {
-      var statement = {r : new RegExp(t, "gim")}
+      statement = {r : new RegExp(t, "gim")};
+      newSort = function(array){
+          // Sort with whole word match
+          array = array.sort(function(a,b){
+              a = a.r.replace("/"," ").split(" ").includes(simplify(t));
+              b = b.r.replace("/"," ").split(" ").includes(simplify(t));
+              return b-a;
+          });
+          return array;
+      }
     }
   }
   }catch(err){
@@ -95,6 +127,7 @@ bot.on('text', (ctx) => {
     }
 
     //docs = docs.slice(1)
+    docs = newSort(docs);
     var l = docs.length;
     var o = t.bold() + " with ".italics();
     if (l > 30){
@@ -105,7 +138,9 @@ bot.on('text', (ctx) => {
     if (l>1){
         o+= "s".italics();
     }
-    o += ":\n".italics();
+    if (l!=0) {
+        o += ":\n".italics();
+    }
 
     docs.map(e => {
       o += "- " + [e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") + "\n"
