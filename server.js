@@ -68,11 +68,9 @@ function realRegex(exp){
     if (exp.indexOf(chars.i) != -1) return true
     return false //plain text
   }
-  
 }
+
 function cmd(t, c){
-  c = c.trim()
-  t = t.trim()
   if (c.substring(0, 1) != "/") c = "/" + c
   const l = c.length
   if (t.substring(0, l + 1) == c + " " || t == c) return (t.substring(l + 1))
@@ -80,14 +78,31 @@ function cmd(t, c){
 }
 
 bot.on('text', (ctx) => {
-  var t = ctx.message.text;
-  if(t == "/start") {
+  var t = ctx.message.text;  
+  
+  if (t.indexOf("/") == 0){
+    if(t == "/start") {
     ctx.replyWithPhoto({url: "https://cdn.glitch.com/e41d8351-01f6-4af8-b0ee-bd4710cb3769%2FA7BA13F8-3D6B-475B-9D23-98649A31754E.jpeg?v=1569678896904"});
     return ctx.replyWithHTML("欢迎使用 @OverflowCat 的满洲里 bot。阁下可以使用满语、转写或中文查询满语词汇。Github repo: https://github.com/OverflowCat/Manchuly")
   }
-  const word = cmd(t, "/word")
+    var word = cmd(t, "/word")
   if (word){
     t = "(^|\\s)" + word + "($|\\s)"
+  }else{
+    var begin = cmd(t, "/begin")
+    if (begin){
+      t = "(^|\\s)" + word
+    }
+    var begin = undefined
+  
+    var end = cmd(t, "/end")
+    if (end){
+      t = word + "($|\\s)"
+    }
+    var end = undefined
+  
+  }
+  var word = undefined
   }
   
   try {
