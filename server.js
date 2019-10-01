@@ -1,21 +1,17 @@
-// server.js
-// where your node app starts
 
-// init project
+//var fundebug = require("fundebug-nodejs");
+//fundebug.apikey = process.env.FUNDEBUG
 const express = require('express');
 const app = express();
 const http = require('http');
-const manchu = require('./ManchuCore');
-const fs = require("fs");
-var simplify = require("hanzi-tools").simplify;
-
+const manchu = require('./ManchuCore')
+const fs = require("fs")
+var simplify = require("hanzi-tools").simplify
+const crc32 = require("./rdm.js").crc32
 function tag(text, tag){
   return ("<" + tag + ">" + text + "</" + tag + ">" )
 }
-// we've started you off with Express,
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
 
-// http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
@@ -144,20 +140,77 @@ bot.on('text', (ctx) => {
 
     docs.map(e => {
       o += "- " + [e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") + "\n"
-      //console.log (i)
     });
-     //docs = "RESULTS OVERFLOW"
-    //console.log(o)
+//<<<<<<< patch-1
     o = o.replace ("undefined", "");
     ctx.replyWithHTML(o)
 });
-
 });
-//bot.command("")
-
 bot.command('start', ctx => {});
+//=======
+//    o = tag(t, "b") + ":\n" + o + tag(l + " result(s)", 'i')
+//    o = o.replace ("undefined", "")
+//    ctx.replyWithHTML(o)
+//  })
+//})
 
-bot.launch();
+//inline
+bot.on('inline_query', async ({
+  inlineQuery,
+  answerInlineQuery
+}) => {
+  const q = inlineQuery.query
+  var results = []
+  if (manchu.isManchuScript(q)) {
+    const res = manchu.deManchurize(q)
+    if (res === "") return
+    results = [{
+      type: "article",
+      id: crc32(res),
+      title: "Tanscription",
+      description: res,
+      input_message_content: {
+        message_text: res
+      },
+      thumb_url: "https://cdn.glitch.com/e41d8351-01f6-4af8-b0ee-bd4710cb3769%2F5BF7709A-BD2D-47DA-9C00-48A22E619F73.jpeg?v=1569941377839"
+    }]
+  } else {
+    if (/[\u4e00-\u9fa5]+/.test(q)) {
+      //nikan jisun
+      var res = "nikan jisun"
+      results = [{
+        type: "article",
+        id: crc32(res),
+        title: "nikan",
+        description: res,
+        input_message_content: {
+          message_text: res
+        }
+      }]
+    } else {
+      //transcription
+      const res = manchu.Manchurize(q)
+      if (res === "") return
+      results = [{
+        type: "article",
+        id: crc32(res),
+        title: "Manju gisun",
+        description: res,
+        input_message_content: {
+          message_text: res
+        },
+        thumb_url: "https://cdn.glitch.com/e41d8351-01f6-4af8-b0ee-bd4710cb3769%2F5BF7709A-BD2D-47DA-9C00-48A22E619F73.jpeg?v=1569941377839"
+      }]
+    }
+  }
+  //Telegram requests results even if the query is blank when the user typed and deleted
+
+  console.log(JSON.stringify(results))
+  return answerInlineQuery(results)
+})
+
+bot.launch()
+//>>>>>>> glitch
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ', err);
 });

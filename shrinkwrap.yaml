@@ -2,6 +2,7 @@ dependencies:
   csvtojson: 2.0.10
   express: 4.16.4
   fast-json-stringify: 1.15.4
+  fundebug-nodejs: 0.2.0
   hanzi-tools: 1.2.9
   lodash: 4.17.15
   nedb: 1.8.0
@@ -237,6 +238,12 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
+  /fundebug-nodejs/0.2.0:
+    dependencies:
+      response-time: 2.3.2
+    dev: false
+    resolution:
+      integrity: sha512-foK74ep2M77rxcBJAUEmLP3Exp+CzwFo+BMZD4vIrR8PNntiqVcvnUptjATn23ZI6fEMXwb3Xi3SF4e9xLE9Ow==
   /hanzi-tools/1.2.9:
     dependencies:
       nodejieba: 2.3.2
@@ -411,6 +418,12 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha1-IPEzZIGwg811M3mSoWlxqi2QaUc=
+  /on-headers/1.0.2:
+    dev: false
+    engines:
+      node: '>= 0.8'
+    resolution:
+      integrity: sha512-pZAE+FJLoyITytdqK0U5s+FIpjN0JP3OzFi/u8Rx+EV5/W+JTWGXG8xFzevE7AjBfDqHv/8vL8qQsIhHnqRkrA==
   /parseurl/1.3.2:
     dev: false
     engines:
@@ -469,6 +482,15 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha512-9esiElv1BrZoI3rCDuOuKCBRbuApGGaDPQfjSflGxdy4oyzqghxu6klEkkVIvBje+FF0BX9coEv8KqW6X/7njw==
+  /response-time/2.3.2:
+    dependencies:
+      depd: 1.1.2
+      on-headers: 1.0.2
+    dev: false
+    engines:
+      node: '>= 0.8.0'
+    resolution:
+      integrity: sha1-/6cbq5UtYvfB1Jt0NDVfvGjf/Fo=
   /safe-buffer/5.1.2:
     dev: false
     resolution:
@@ -598,6 +620,7 @@ specifiers:
   csvtojson: ^2.0.9
   express: ^4.16.4
   fast-json-stringify: ^1.15.4
+  fundebug-nodejs: ^0.2.0
   hanzi-tools: ^1.2.9
   lodash: ^4.17.15
   nedb: ^1.8.0
