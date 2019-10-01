@@ -1,4 +1,3 @@
-
 //var fundebug = require("fundebug-nodejs");
 //fundebug.apikey = process.env.FUNDEBUG
 const express = require('express');
@@ -62,18 +61,40 @@ bot.use((ctx, next) => {
   })
 });
 
+const chars = "^{()}[]$".split
+const charslen = chars.length
+function realRegex(exp){
+  for (var i = 0; i < charslen; i++){
+    if (exp.indexOf(chars.i) != -1) return true
+    return false //plain text
+  }
+  
+}
+function cmd(t, c){
+  c = c.trim()
+  t = t.trim()
+  if (c.substring(0, 1) != "/") c = "/" + c
+  const l = c.length
+  if (t.substring(0, l + 1) == c + " " || t == c) return (t.substring(l + 1))
+  return false
+}
 
 bot.on('text', (ctx) => {
-
   var t = ctx.message.text;
   if(t == "/start") {
     ctx.replyWithPhoto({url: "https://cdn.glitch.com/e41d8351-01f6-4af8-b0ee-bd4710cb3769%2FA7BA13F8-3D6B-475B-9D23-98649A31754E.jpeg?v=1569678896904"});
     return ctx.replyWithHTML("欢迎使用 @OverflowCat 的满洲里 bot。阁下可以使用满语、转写或中文查询满语词汇。Github repo: https://github.com/OverflowCat/Manchuly")
   }
+  const word = cmd(t, "/word")
+  if (word){
+    t = "(^|\\s)" + word + "($|\\s)"
+  }
+  
   try {
   var statement, newSort;
   if (/[\u4e00-\u9fa5]+/.test(t)){
-    statement = {zh : new RegExp(simplify(t))};
+    t = simplify(t)
+    statement = {zh : new RegExp(t, "gm")};
     newSort = function(array){
         // Sort with length
         array = array.sort(function(a,b){
@@ -89,23 +110,26 @@ bot.on('text', (ctx) => {
     }
   }else{
     if (manchu.isManchuScript(t)){
-      statement= {m : new RegExp(t,"gim")};
+      statement= {m : new RegExp(t,"g")};
       newSort = function(array){
         // Sort with whole word match
         array = array.sort(function(a,b){
-            a = a.m.replace("/"," ").split(" ").includes(simplify(t));
-            b = b.m.replace("/"," ").split(" ").includes(simplify(t));
+            a = a.m.replace("/"," ").split(" ").includes(t);
+            b = b.m.replace("/"," ").split(" ").includes(t);
+          //simplify is the func for simplifying Chinese
             return b-a;
         });
         return array;
       }
     } else {
-      statement = {r : new RegExp(t, "gim")};
+      //romanization
+      t = t.toLowerCase()
+      statement = {r : new RegExp(t, "g")};
       newSort = function(array){
           // Sort with whole word match
           array = array.sort(function(a,b){
-              a = a.r.replace("/"," ").split(" ").includes(simplify(t));
-              b = b.r.replace("/"," ").split(" ").includes(simplify(t));
+              a = a.r.replace("/"," ").split(" ").includes(t);
+              b = b.r.replace("/"," ").split(" ").includes(t);
               return b-a;
           });
           return array;
@@ -114,7 +138,7 @@ bot.on('text', (ctx) => {
   }
   }catch(err){
     console.log (err);
-    return ctx.reply(err)
+    return ctx.reply("Reg Exp Err" + err)
   }
   db.find(statement, function (err, docs) {
     if (err) {
@@ -123,7 +147,11 @@ bot.on('text', (ctx) => {
     }
 
     //docs = docs.slice(1)
-    docs = newSort(docs);
+          //DETECT whether t is a regex or plain text
+      if (!realRegex(t)){
+        docs = newSort(docs);
+      }
+    
     var l = docs.length;
     var o = t.bold() + " with ".italics();
     if (l > 30){
