@@ -8,9 +8,8 @@ const fs = require("fs");
 var simplify = require("hanzi-tools").simplify;
 const crc32 = require("./rdm.js").crc32;
 function tag(text, tag) {
-  return "<" + tag + ">" + text + "</" + tag + ">";
+  return ("<" + tag + ">" + text + "</" + tag + ">")
 }
-
 app.use(express.static("public"));
 
 // http://expressjs.com/en/starter/basic-routing.html
@@ -40,8 +39,8 @@ csv()
   .then(jsonObj => {
     var trimmed = jsonObj.map(i => {
       i.zh = i.zh.split(" | ");
-      i.m = i.m.replace(/&nbsp;/g, " ");
-      i.r = i.r.replace(/&nbsp;/g, " ");
+      i.m = i.m.replace(/&nbsp;/g, " ").replace(/( |　)./g, " ");
+      i.r = i.r.replace(/&nbsp;/g, " ").replace(/( |　)./g, " ");
       return _.pick(i, ["m", "r", "zh"]);
     });
     db.insert(trimmed, function(err, newDoc) {});
@@ -75,7 +74,7 @@ function cmd(t, c) {
 }
 
 bot.on("text", ctx => {
-  var t = ctx.message.text;
+  var t = ctx.message.text.replace(/　/g, " ");
 
   if (t.indexOf("/") == 0) {
     if (t == "/start") {
