@@ -1,17 +1,16 @@
 dependencies:
   csvtojson: 2.0.10
   express: 4.16.4
-  fast-json-stringify: 1.15.4
+  fast-json-stringify: 1.15.6
   fundebug-nodejs: 0.2.0
-  hanzi-tools: 1.2.9
   lodash: 4.17.15
   nedb: 1.8.0
-  telegraf: 3.32.0
+  telegraf: 3.33.3
 packages:
-  /@types/node/12.7.5:
+  /@types/node/12.12.9:
     dev: false
     resolution:
-      integrity: sha512-9fq4jZVhPNW8r+UYKnxF1e2HkDWOWKM5bC2/7c9wPV835I0aOrVbS/Hw/pWPk2uKrNXQqg9Z959Kz+IYDd5p3w==
+      integrity: sha512-kV3w4KeLsRBW+O2rKhktBwENNJuqAUQHS3kf4ia2wIaF/MN6U7ANgTsx7tGremcA0Pk3Yh0Hl0iKiLPuBdIgmw==
   /accepts/1.3.5:
     dependencies:
       mime-types: 2.1.21
@@ -71,14 +70,6 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha1-0ygVQE1olpn4Wk6k+odV3ROpYEg=
-  /commander/1.1.1:
-    dependencies:
-      keypress: 0.1.0
-    dev: false
-    engines:
-      node: '>= 0.6.x'
-    resolution:
-      integrity: sha1-UNFlGGiuYOzP8KLZ80WVN2vGsEE=
   /content-disposition/0.5.2:
     dev: false
     engines:
@@ -124,12 +115,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
-  /deepmerge/4.0.0:
+  /deepmerge/4.2.2:
     dev: false
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha512-YZ1rOP5+kHor4hMAH+HRQnBQHg+wvS1un1hAOuIcxcBy0hzcUf6Jg2a1w65kpoOUnurOfZbERwjI1TfZxNjcww==
+      integrity: sha512-FJ3UgI4gIl+PHZm53knsuSFpE+nESMr7M4v9QcgB7S63Kj/6WqMiFQJpBBYz1Pt+66bZpP3Q7Lye0Oo9MPKEdg==
   /depd/1.1.2:
     dev: false
     engines:
@@ -205,13 +196,13 @@ packages:
     dev: false
     resolution:
       integrity: sha1-1RQsDK7msRifh9OnYREGT4bIu/I=
-  /fast-json-stringify/1.15.4:
+  /fast-json-stringify/1.15.6:
     dependencies:
       ajv: 6.10.2
-      deepmerge: 4.0.0
+      deepmerge: 4.2.2
     dev: false
     resolution:
-      integrity: sha512-lsGTxL0OIGjGSUXgWUOdSgjCL/xMyMvMudfGN3D1zOLEv44fYZ1ZXmMyCON5XdpaiZN6nCXmU7GQg7fbXfPG4g==
+      integrity: sha512-UKypbA85Qc53b8xdcXWI3g7TBnOV34+cYJczHJZv4KQ4mF3H9Mk3547FjX3lvUJO4Wf5kK0IhSO0eUTJKKcmEw==
   /finalhandler/1.1.1:
     dependencies:
       debug: 2.6.9
@@ -244,15 +235,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-foK74ep2M77rxcBJAUEmLP3Exp+CzwFo+BMZD4vIrR8PNntiqVcvnUptjATn23ZI6fEMXwb3Xi3SF4e9xLE9Ow==
-  /hanzi-tools/1.2.9:
-    dependencies:
-      nodejieba: 2.3.2
-      pinyin: 2.9.0
-    dev: false
-    engines:
-      node: '>=6.0.0'
-    resolution:
-      integrity: sha512-a6pia5l91CGw0E8YZQRKEZ9oW6AJpvgHQtSyPl76f0PxNzonbfHrbzNkvxyvZrabWoR6w9GaxnAW4GcN8A0B6g==
   /http-errors/1.6.3:
     dependencies:
       depd: 1.1.2
@@ -294,10 +276,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==
-  /keypress/0.1.0:
-    dev: false
-    resolution:
-      integrity: sha1-SjGI1CkbZrT2XtuZ+AaqmuKTWSo=
   /lie/3.1.1:
     dependencies:
       immediate: 3.0.6
@@ -368,10 +346,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
-  /nan/2.14.0:
-    dev: false
-    resolution:
-      integrity: sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
   /nedb/1.8.0:
     dependencies:
       async: 0.2.10
@@ -394,22 +368,6 @@ packages:
       node: 4.x || >=6.0.0
     resolution:
       integrity: sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
-  /nodejieba/2.3.2:
-    dependencies:
-      nan: 2.14.0
-    dev: false
-    engines:
-      iojs: '>= 1.0.0'
-      node: '>= 0.10.0'
-    requiresBuild: true
-    resolution:
-      integrity: sha512-Dp3qb54D8QlpyaKYGOpkB0E/hAHB0oWWzE9RIkAGglY6KTQMeOUsM8NZ8Af9eirRZvpdXH9v6zDVpHRq04a7SA==
-  /object-assign/4.1.1:
-    dev: false
-    engines:
-      node: '>=0.10.0'
-    resolution:
-      integrity: sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
   /on-finished/2.3.0:
     dependencies:
       ee-first: 1.1.1
@@ -434,16 +392,6 @@ packages:
     dev: false
     resolution:
       integrity: sha1-32BBeABfUi8V60SQ5yR6G/qmf4w=
-  /pinyin/2.9.0:
-    dependencies:
-      commander: 1.1.1
-      object-assign: 4.1.1
-    dev: false
-    hasBin: true
-    optionalDependencies:
-      nodejieba: 2.3.2
-    resolution:
-      integrity: sha512-TZYQ+2uE12arC1EfCeDmN5KgwIOuNMIweOotKvBZdhVOUuQc5RJsGEGf+BaSvxfVtu9ViYEFJmH0xTaj9t4n3Q==
   /proxy-addr/2.0.4:
     dependencies:
       forwarded: 0.1.2
@@ -560,9 +508,9 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-YhmoVhZSBJHzV4i9vxRHqZx+aw4=
-  /telegraf/3.32.0:
+  /telegraf/3.33.3:
     dependencies:
-      '@types/node': 12.7.5
+      '@types/node': 12.12.9
       debug: 4.1.1
       node-fetch: 2.6.0
       sandwich-stream: 2.0.2
@@ -571,7 +519,7 @@ packages:
     engines:
       node: '>=8'
     resolution:
-      integrity: sha512-5ZHiovyuG1rVLygJjaqf57wDt8e1nijAinKXCxN1tyUZ4BcrkZW/z5rVTEXA+KegpFbWxKKv3KnJwUJrKDqD0Q==
+      integrity: sha512-ItSAeE9OjFH+X0rS8DeErccoUZRy2hBl+mDjFWDqyZWyRElxA5L178UpJV7tM6hCVN/leFY+9orfra2JtX4AyQ==
   /telegram-typings/3.6.1:
     dev: false
     resolution:
@@ -619,9 +567,8 @@ shrinkwrapVersion: 3
 specifiers:
   csvtojson: ^2.0.9
   express: ^4.16.4
-  fast-json-stringify: ^1.15.4
+  fast-json-stringify: ^1.15.6
   fundebug-nodejs: ^0.2.0
-  hanzi-tools: ^1.2.9
   lodash: ^4.17.15
   nedb: ^1.8.0
-  telegraf: ^3.32.0
+  telegraf: ^3.33.2
