@@ -5,7 +5,10 @@ const app = express();
 const http = require("http");
 const manchu = require("./ManchuCore");
 const fs = require("fs");
-var simplify = require("hanzi-tools").simplify;
+//var simplify = require("hanzi-tools").simplify;
+function simplify (t){
+  return t
+}
 const crc32 = require("./rdm.js").crc32;
 function tag(text, tag) {
   return ("<" + tag + ">" + text + "</" + tag + ">")

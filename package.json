@@ -12,11 +12,10 @@
   "dependencies": {
     "express": "^4.16.4",
     "nedb": "^1.8.0",
-    "telegraf": "^3.32.0",
+    "telegraf": "^3.33.2",
     "csvtojson": "^2.0.9",
-    "fast-json-stringify": "^1.15.4",
+    "fast-json-stringify": "^1.15.6",
     "lodash": "^4.17.15",
-    "hanzi-tools": "^1.2.9",
     "fundebug-nodejs": "^0.2.0"
   },
   "engines": {
