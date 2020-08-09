@@ -1,21 +1,19 @@
-//var fundebug = require("fundebug-nodejs");
-//fundebug.apikey = process.env.FUNDEBUG
 const express = require("express");
 const app = express();
 const http = require("http");
 const manchu = require("./ManchuCore");
 const fs = require("fs");
 //var simplify = require("hanzi-tools").simplify;
-function simplify (t){
-  return t
+function simplify(t) {
+  return t;
 }
 const crc32 = require("./rdm.js").crc32;
 function tag(text, tag) {
-  return ("<" + tag + ">" + text + "</" + tag + ">")
+  return "<" + tag + ">" + text + "</" + tag + ">";
 }
-app.use(express.static("public"));
 
-// http://expressjs.com/en/starter/basic-routing.html
+// Express /////////////////////////////////
+app.use(express.static("public"));
 app.get("/", function(request, response) {
   app.get("/", (request, response) => {
     console.log(Date.now() + " Ping Received");
@@ -23,31 +21,52 @@ app.get("/", function(request, response) {
   });
 });
 
-// listen for requests :)
 const listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + process.env.PORT);
 });
 setInterval(() => {
   http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
 }, 280000);
+////////////////////////////////////////////
 
 const _ = require("lodash/object");
 const csvFilePath = "dicts.csv";
 const csv = require("csvtojson");
 var Datastore = require("nedb"),
   db = new Datastore();
-
+//  {filename: 'dict.db', autoload: true}
 csv()
   .fromFile(csvFilePath)
   .then(jsonObj => {
     var trimmed = jsonObj.map(i => {
-      i.zh = i.zh.split(" | ");
+      //i.zh = i.zh.split(" | ");
+      i.zh = i.zh.split(" | ").join("；");
       i.m = i.m.replace(/&nbsp;/g, " ").replace(/( |　)./g, " ");
       i.r = i.r.replace(/&nbsp;/g, " ").replace(/( |　)./g, " ");
       return _.pick(i, ["m", "r", "zh"]);
     });
     db.insert(trimmed, function(err, newDoc) {});
   });
+
+if (true) {
+  csv()
+    .fromFile("dicEturc.csv")
+    .then(jsonObj => {
+      //"h,o,d,p,c,g" => "hergen, original, definition, picture, color, group"
+      var trimmed = jsonObj.map(item => {
+        //console.log(item)
+        //item.d = item.d.split("||").join(",");
+        var obj = {};
+        obj.m = item["m"];
+        obj.r = item["h"];
+        obj.zh = item["d"];
+        return obj;
+      });
+      db.insert(trimmed, function(err, newDoc) {
+        console.log(newDoc.length);
+      });
+    });
+}
 
 const Telegraf = require("telegraf");
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -122,12 +141,15 @@ bot.on("text", ctx => {
       newSort = function(array) {
         // Sort with length
         array = array.sort(function(a, b) {
-          return a.zh.join("；").length - b.zh.join("；").length;
+          //return a.zh.join("；").length - b.zh.join("；").length;
+          return a.zh.length - b.zh.length;
         });
         // Sort with whole word match
         array = array.sort(function(a, b) {
-          a = a.zh.includes(simplify(t));
-          b = b.zh.includes(simplify(t));
+          //a = a.zh.includes(simplify(t));
+          //b = b.zh.includes(simplify(t));
+          a = a.zh.split("；").includes(simplify(t));
+          b = b.zh.split("；").includes(simplify(t));
           return b - a;
         });
         return array;
@@ -192,7 +214,7 @@ bot.on("text", ctx => {
     var o = t.bold() + " with ".italics();
     if (l > 30) {
       docs = docs.slice(0, 20);
-      o += "20 of ".italics();
+      o += "20 of".italics() + " ";
     }
     o += l + " result".italics();
     if (l > 1) {
@@ -205,7 +227,8 @@ bot.on("text", ctx => {
     docs.map(e => {
       o +=
         "- " +
-        [e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") +
+        //[e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") +
+        [e.m.bold(), tag(e.r, "code"), e.zh].join(" | ") +
         "\n";
     });
     //<<<<<<< patch-1
@@ -216,7 +239,7 @@ bot.on("text", ctx => {
 bot.command("start", ctx => {});
 //=======
 
-//inline
+//inline///////////////////////////////////////////
 bot.on("inline_query", async ({ inlineQuery, answerInlineQuery }) => {
   const q = inlineQuery.query;
   var results = [];
