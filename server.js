@@ -3,10 +3,19 @@ const app = express();
 const http = require("http");
 const manchu = require("./ManchuCore");
 const fs = require("fs");
+const OpenCC = require("opencc");
+const converter = new OpenCC("t2s.json");
 //var simplify = require("hanzi-tools").simplify;
-function simplify(t) {
+async function simplify(t) {
+  var response = await converter.convertPromise(t);
+  console.log("`response: " + response);
+  return response;
+}
+
+function tsimplify(t) {
   return t;
 }
+
 const crc32 = require("./rdm.js").crc32;
 function tag(text, tag) {
   return "<" + tag + ">" + text + "</" + tag + ">";
@@ -52,7 +61,8 @@ if (true) {
   csv()
     .fromFile("dicEturc.csv")
     .then(jsonObj => {
-      //"h,o,d,p,c,g" => "hergen, original, definition, picture, color, group"
+      // in this csv:
+      // "m,h,o,d,p,c,g" => "manchu, hergen, original, definition, picture, color, group"
       var trimmed = jsonObj.map(item => {
         //console.log(item)
         //item.d = item.d.split("||").join(",");
@@ -79,9 +89,12 @@ bot.use((ctx, next) => {
   });
 });
 
-const chars = "^{()}[]$".split;
+const chars = "^{()}[]$".split();
 const charslen = chars.length;
 function realRegex(exp) {
+  console.log("realexp");
+  console.log(exp);
+
   for (var i = 0; i < charslen; i++) {
     if (exp.indexOf(chars.i) != -1) return true;
     return false; //plain text
@@ -95,7 +108,7 @@ function cmd(t, c) {
   return false;
 }
 
-bot.on("text", ctx => {
+bot.on("text", async ctx => {
   var t = ctx.message.text.replace(/　/g, " ");
 
   if (t.indexOf("/") == 0) {
@@ -136,7 +149,9 @@ bot.on("text", ctx => {
   try {
     var statement, newSort;
     if (/[\u4e00-\u9fa5]+/.test(t)) {
-      t = simplify(t);
+      //ニカン語
+      t = await simplify(t);
+      console.log(t);
       statement = { zh: new RegExp(t, "gm") };
       newSort = function(array) {
         // Sort with length
@@ -233,6 +248,9 @@ bot.on("text", ctx => {
     });
     //<<<<<<< patch-1
     o = o.replace("undefined", "");
+    o = o.replace(/［[0-9]+］/g, "");
+    o = o.replace(/(@|v)/g, "ū");
+    o = o.replace(/S/g, "š");
     ctx.replyWithHTML(o);
   });
 });
