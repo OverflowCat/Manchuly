@@ -4,11 +4,17 @@ const http = require("http");
 const manchu = require("./ManchuCore");
 const fs = require("fs");
 const OpenCC = require("opencc");
-const converter = new OpenCC("t2s.json");
+const zhconverter = new OpenCC("t2s.json");
+const userdb = require("./user");
+const replaceall = require("replaceall");
+const pangu = require("pangu");
+
+//userdb.c(114514, "lang", "zh_classic");
+//userdb.c(114515, "lang", "zh_classic");
+//const diskord = require('./diskord')
 //var simplify = require("hanzi-tools").simplify;
-async function simplify(t) {
-  var response = await converter.convertPromise(t);
-  console.log("`response: " + response);
+async function simplify(text) {
+  var response = await zhconverter.convertPromise(text);
   return response;
 }
 
@@ -41,7 +47,7 @@ setInterval(() => {
 const _ = require("lodash/object");
 const csvFilePath = "dicts.csv";
 const csv = require("csvtojson");
-var Datastore = require("nedb"),
+const Datastore = require("nedb"),
   db = new Datastore();
 //  {filename: 'dict.db', autoload: true}
 csv()
@@ -92,9 +98,6 @@ bot.use((ctx, next) => {
 const chars = "^{()}[]$".split();
 const charslen = chars.length;
 function realRegex(exp) {
-  console.log("realexp");
-  console.log(exp);
-
   for (var i = 0; i < charslen; i++) {
     if (exp.indexOf(chars.i) != -1) return true;
     return false; //plain text
@@ -160,13 +163,16 @@ bot.on("text", async ctx => {
           return a.zh.length - b.zh.length;
         });
         // Sort with whole word match
-        array = array.sort(function(a, b) {
-          //a = a.zh.includes(simplify(t));
-          //b = b.zh.includes(simplify(t));
-          a = a.zh.split("；").includes(simplify(t));
-          b = b.zh.split("；").includes(simplify(t));
-          return b - a;
-        });
+        if (false) {
+          array = array.sort(function(a, b) {
+            //a = a.zh.includes(simplify(t));
+            //b = b.zh.includes(simplify(t));
+            //TODO: 批量分割
+            a = a.zh.split("；").includes(simplify(t));
+            b = b.zh.split("；").includes(simplify(t));
+            return b - a;
+          });
+        }
         return array;
       };
     } else {
@@ -239,22 +245,27 @@ bot.on("text", async ctx => {
       o += ":\n".italics();
     }
 
+    var docso = "";
     docs.map(e => {
-      o +=
+      docso +=
         "- " +
         //[e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") +
-        [e.m.bold(), tag(e.r, "code"), e.zh].join(" | ") +
+        [e.m.bold(), "<code>" + e.r + "</code>", pangu.spacing(e.zh)].join(" | ") +
         "\n";
     });
+    if (!realRegex(t)) docso = replaceall(t, "<u>" + t + "</u>", docso);
     //<<<<<<< patch-1
+    o = o + docso;
+    docso = undefined;
     o = o.replace("undefined", "");
     o = o.replace(/［[0-9]+］/g, "");
     o = o.replace(/(@|v)/g, "ū");
-    o = o.replace(/S/g, "š");
+    o = o.replace(/(x|S)/g, "š");
+    //TODO: pre-transcription
     ctx.replyWithHTML(o);
   });
 });
-bot.command("start", ctx => {});
+//bot.command("start", ctx => {});
 //=======
 
 //inline///////////////////////////////////////////
