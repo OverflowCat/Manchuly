@@ -71,7 +71,9 @@ if (true) {
       // "m,h,o,d,p,c,g" => "manchu, hergen, original, definition, picture, color, group"
       var trimmed = jsonObj.map(item => {
         //console.log(item)
-        //item.d = item.d.split("||").join(",");
+        item.d = item.d.split("||").join(",");
+        item.d = item.d.replace(/([a-z@])(，|,)([a-z@])/g, "$1, $3");
+        // item.d = item.d.replace(/(\[)((不)?及)(\] ?)/g, '<b>$2</b> ');
         var obj = {};
         obj.m = item["m"];
         obj.r = item["h"];
@@ -225,32 +227,56 @@ bot.on("text", async ctx => {
       return ctx.reply(err);
     }
 
-    //docs = docs.slice(1)
     //DETECT whether t is a regex or plain text
     if (!realRegex(t)) {
       docs = newSort(docs);
     }
-
     var l = docs.length;
+    const pagelength = 15;
+    var page = 3;
+    if (page <= 1) page = 1;
+    const pagecount = Math.ceil(l / pagelength);
+    if (page * pagelength > l) page = pagecount;
     var o = t.bold() + " with ".italics();
-    if (l > 30) {
-      docs = docs.slice(0, 20);
-      o += "20 of".italics() + " ";
+    if (l > pagelength) {
+      // Pagination
+      docs = docs.slice(
+        pagelength * (page - 1),
+        page == pagecount ? l : pagelength * page
+      );
+      o += "page " + page + " of".italics() + " ";
     }
     o += l + " result".italics();
     if (l > 1) {
       o += "s".italics();
     }
     if (l != 0) {
-      o += ":\n".italics();
+      o += ":\n";
     }
+    console.log(o);
+
+    // Markup
+    const PGUP = t + " " + (page - 1); //First page?
+    const PGDN = t + " " + (page + 1); //Last Page?
+    const pagibtn = Telegraf.Extra.HTML().markup(m =>
+      m
+        .inlineKeyboard([
+          [
+            m.callbackButton("← " + (page - 1), PGUP),
+            m.callbackButton(page + 1 + " →", PGDN)
+          ]
+        ])
+        .resize()
+    );
 
     var docso = "";
     docs.map(e => {
       docso +=
         "- " +
         //[e.m.bold(), tag(e.r, "code"), e.zh.join("；")].join(" | ") +
-        [e.m.bold(), "<code>" + e.r + "</code>", pangu.spacing(e.zh)].join(" | ") +
+        [e.m.bold(), "<code>" + e.r + "</code>", pangu.spacing(e.zh)].join(
+          " | "
+        ) +
         "\n";
     });
     if (!realRegex(t)) docso = replaceall(t, "<u>" + t + "</u>", docso);
@@ -261,8 +287,13 @@ bot.on("text", async ctx => {
     o = o.replace(/［[0-9]+］/g, "");
     o = o.replace(/(@|v)/g, "ū");
     o = o.replace(/(x|S)/g, "š");
+    o = replaceall("| 〔", "|〔", o);
+    o = o.replace(/( ?)([\u2460-\u24ff])/, " $2 ");
+    o = o.replace(/  +/, " ");
+
     //TODO: pre-transcription
-    ctx.replyWithHTML(o);
+    console.log(o);
+    ctx.replyWithHTML(o, pagibtn);
   });
 });
 //bot.command("start", ctx => {});
