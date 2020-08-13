@@ -8,7 +8,7 @@ const userdb = require("./user");
 const replaceall = require("replaceall");
 
 const lookup = require("./lookup");
-
+const MAX_PAGE_LENGTH = 4066;
 //userdb.c(114514, "lang", "zh_classic");
 //userdb.c(114515, "lang", "zh_classic");
 //const diskord = require('./diskord')
@@ -38,7 +38,7 @@ const listener = app.listen(process.env.PORT, function() {
 setInterval(() => {
   http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
 }, 280000);
-////////////////////////////////////////////
+
 const Telegraf = require("telegraf");
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -71,49 +71,60 @@ bot.command("start", ctx => {
 
 bot.command("ping", ctx => ctx.reply("Pong!"));
 
-bot.on("text", async ctx => {
-  var t = ctx.message.text;
-  if (t.indexOf("/") == 0) {
-    var word = cmd(t, "/word");
-    if (word === "")
-      return ctx.reply("用法：\n /word <gibsun|ᡤᡳᠪᠰᡠᠨ|詞或整句> 查詢整個單詞");
-    if (word) {
-      t = "(^|\\s|/)" + word + "($|\\s|/)";
-    } else {
-      var begin = cmd(t, "/begin");
-      if (begin === "") {
-        return ctx.reply("/begin 前段一致，便於匹配動詞變形");
-      }
-      if (begin) {
-        t = "(^|\\s|/)" + begin;
-      }
-      var begin = undefined;
+async function together(ctx, _text, _mode) {
+  //bot.action(/.+/, async ctx => {
+  var t = _text;
+  if (_mode == "chat") {
+    if (t.indexOf("/") == 0) {
+      var word = cmd(t, "/word");
+      if (word === "")
+        return ctx.reply(
+          "用法：\n /word <gibsun|ᡤᡳᠪᠰᡠᠨ|詞或整句> 查詢整個單詞"
+        );
+      if (word) {
+        t = "(^|\\s|/)" + word + "($|\\s|/)";
+      } else {
+        var begin = cmd(t, "/begin");
+        if (begin === "") {
+          return ctx.reply("/begin 前段一致，便於匹配動詞變形");
+        }
+        if (begin) {
+          t = "(^|\\s|/)" + begin;
+        }
+        var begin = undefined;
 
-      var end = cmd(t, "/end");
-      if (end === "") return ctx.reply("/end 後段一致匹配");
-      if (end) {
-        t = end + "($|\\s|/)";
+        var end = cmd(t, "/end");
+        if (end === "") return ctx.reply("/end 後段一致匹配");
+        if (end) {
+          t = end + "($|\\s|/)";
+        }
+        var end = undefined;
       }
-      var end = undefined;
+      var word = undefined;
     }
-    var word = undefined;
   }
 
   var findings = await lookup.any(t, "privatechat");
   const RES = findings[1];
   const btnArr = findings[2];
-  const PURE = RES.replace(/<[\s\S]+?>/g, "");
 
+  function getPure(orig) {
+    return orig.replace(/<[\s\S]+?>/g, "");
+  }
+  const PURE = getPure(RES);
   const pagibtns = Telegraf.Extra.HTML().markup(m =>
     m
-      .inlineKeyboard([btnArr.map(btn => m.callbackButton(btn[0], btn[1]))])
+      .inlineKeyboard([
+        btnArr.map(btn => m.callbackButton(btn[0], "pgbtn " + btn[1]))
+      ])
       .resize()
   );
   // console.log(pagibtns);
-  ctx.replyWithHTML("Length is " + PURE.length + " / " + RES.length);
-  if (false) {
-    if (RES.length >= 4096) {
-      // return ctx.replyWithHTML("Too big!!! Length is " + PURE.length);
+  // console.log("Length is " + PURE.length + " / " + RES.length);
+  if (true) {
+    // 字数超出限制
+
+    if (RES.length >= MAX_PAGE_LENGTH) {
       var lines = RES.split("\n");
       var charcount = 0;
       var separations = [];
@@ -123,18 +134,47 @@ bot.on("text", async ctx => {
       for (var i = 0; i < linescount; i++) {
         const ele = lines[i];
         charcount += ele.length;
-        if (charcount >= 4095 || i == linescount - 1) {
+        if (charcount >= MAX_PAGE_LENGTH || i == linescount - 1) {
           separations.push(lines.slice(ini, i).join("\n"));
           ini = i;
           charcount = 0;
         }
       }
-      return separations.map(separation =>
-        ctx.replyWithHTML(separation, pagibtns)
-      );
+      console.log(separations);
+      // TODO: 单个词条长度过长，只能强制分页
+
+      const separationcount = separations.length;
+      separations.map((separation, index) => {
+        separation = separation.trim();
+        ctx.replyWithHTML(
+          `${separation + "\n <code>" + getPure(separation).length} / ${
+            separation.length
+          }</code>  <b>(${index + 1} / ${separationcount})</b>`,
+          pagibtns
+        );
+      });
+      return;
     }
   }
-  return ctx.replyWithHTML(findings[1], pagibtns);
+  return ctx.replyWithHTML(
+    RES.trim() + "\n<code>" + PURE.length + " / " + RES.length + "</code>",
+    pagibtns
+  );
+}
+
+bot.on("text", async ctx => {
+  await together(ctx, ctx.message.text, "chat");
+  return;
+});
+
+bot.action(/^pgbtn /, async ctx => {
+  // ctx.reply(ctx.callbackQuery.data); // pgbtn 来 2
+  let text = ctx.callbackQuery.data;
+  let _arr_text = text.split(" ");
+  _arr_text.shift();
+  text = _arr_text.join(" ");
+  await together(ctx, text, "pgbtn");
+  return;
 });
 
 //inline///////////////////////////////////////////
