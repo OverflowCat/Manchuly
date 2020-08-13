@@ -150,18 +150,20 @@ async function any(term, mode) {
 
   const l = docs.length;
 
-  const pagelength = 13;
+  const pagelength = 20;
+  // TODO: custom pagelength
+
   if (page <= 1) page = 1;
   const pagecount = Math.ceil(l / pagelength);
   if (page * pagelength > l) page = pagecount;
   var o = t.bold() + ": ";
-  var numb = "";
+  let numb = "";
   if (l > pagelength) {
     // Pagination
     var pageend = page == pagecount ? l : pagelength * page;
     docs = docs.slice(pagelength * (page - 1), pageend);
     numb += `Page ${page} / ${pagecount}, ${pagelength * (page - 1) +
-      1} ~ ${pagelength * page} <i>of</i> ${l} results`;
+      1} ~ ${pagelength * page} <i>of</i> ${l} result`;
   }
   if (l > 1) numb += "s";
   if (l != 0) numb += "\n";
@@ -188,7 +190,7 @@ async function any(term, mode) {
   o = o.replace(/( ?)([\u2460-\u24ff])/, " $2 "); //数字编号的空格
   o = o.replace(/  +/, " ");
 
-  //TODO: pre-transcription
+  //TODO: pre-transcription 在 input
 
   // Markup
   const PGUP = t + " " + (page - 1);
