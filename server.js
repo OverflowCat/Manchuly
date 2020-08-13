@@ -9,14 +9,16 @@ const userdb = require("./user");
 const replaceall = require("replaceall");
 const pangu = require("pangu");
 
+//userdb.c(114514, "lang", "zh_classic");
+//userdb.c(114515, "lang", "zh_classic");
 //const diskord = require('./diskord')
 //var simplify = require("hanzi-tools").simplify;
-async function asimplify(text) {
+async function simplify(text) {
   var response = await zhconverter.convertPromise(text);
   return response;
 }
 
-function simplify(t) {
+function tsimplify(t) {
   return t;
 }
 
@@ -26,22 +28,21 @@ function tag(text, tag) {
 }
 
 // Express /////////////////////////////////
-if (true) {
-  app.use(express.static("public"));
-  app.get("/", function(request, response) {
-    app.get("/", (request, response) => {
-      console.log(Date.now() + " Ping Received");
-      response.sendStatus(200);
-    });
+app.use(express.static("public"));
+app.get("/", function(request, response) {
+  app.get("/", (request, response) => {
+    console.log(Date.now() + " Ping Received");
+    response.sendStatus(200);
   });
+});
 
-  const listener = app.listen(process.env.PORT, function() {
-    console.log("Your app is listening on port " + process.env.PORT);
-  });
-  setInterval(() => {
-    http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-  }, 280000);
-}
+const listener = app.listen(process.env.PORT, function() {
+  console.log("Your app is listening on port " + process.env.PORT);
+});
+setInterval(() => {
+  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+}, 280000);
+////////////////////////////////////////////
 
 const _ = require("lodash/object");
 const csvFilePath = "dicts.csv";
@@ -112,8 +113,6 @@ function cmd(t, c) {
   return false;
 }
 
-//bot.command("fuck", ctx => ctx.reply("Fuck it!"));
-//It works!
 bot.command("start", ctx => {
   ctx.replyWithPhoto({
     url:
@@ -121,21 +120,52 @@ bot.command("start", ctx => {
   });
   return ctx.replyWithHTML(
     "欢迎使用 @OverflowCat 的满洲里 bot。" +
-      "阁下可以使用满语、转写或中文查询满语词汇。" +
+      "阁下可以使用满语、转写或中文查询满语词汇。\n" +
       'Github repo: <a href="https://github.com/OverflowCat/Manchuly">OverflowCat/Manchuly</a>'
   );
 });
+
 bot.command("ping", ctx => ctx.reply("Pong!"));
 
-function lookup(t) {
+bot.on("text", async ctx => {
+  var t = ctx.message.text.replace(/　/g, " ");
   //const isPage = /( (page|PAGE))? ([0-9]+)/.exec(t)
   const segaments = t.split(" ");
-  var page = /^[0-9]+$/.test(segaments[-1]) ? segaments[-1] : "1"; //Cannot be a constant!
+  var page = segaments.slice(-1)[0]; //Cannot be a constant!
+  page = /^[0-9]+$/.test(page) ? Number(segaments.pop()) : 1; // pop() 删除&返回数组最后一个元素
+  t = segaments.join(" ");
+
+  if (t.indexOf("/") == 0) {
+    var word = cmd(t, "/word");
+    if (word === "")
+      return ctx.reply("用法：\n /word <gibsun|ᡤᡳᠪᠰᡠᠨ|詞或整句> 查詢整個單詞");
+    if (word) {
+      t = "(^|\\s|/)" + word + "($|\\s|/)";
+    } else {
+      var begin = cmd(t, "/begin");
+      if (begin === "") {
+        return ctx.reply("/begin 前段一致，便於匹配動詞變形");
+      }
+      if (begin) {
+        t = "(^|\\s|/)" + begin;
+      }
+      var begin = undefined;
+
+      var end = cmd(t, "/end");
+      if (end === "") return ctx.reply("/end 後段一致匹配");
+      if (end) {
+        t = end + "($|\\s|/)";
+      }
+      var end = undefined;
+    }
+    var word = undefined;
+  }
+
   try {
     var statement, newSort;
     if (/[\u4e00-\u9fa5]+/.test(t)) {
       //ニカン語
-      t = simplify(t);
+      t = await simplify(t);
       console.log(t);
       statement = { zh: new RegExp(t, "gm") };
       newSort = function(array) {
@@ -199,21 +229,22 @@ function lookup(t) {
     }
   } catch (err) {
     console.log(err);
-    return ["ERROR", "Reg Exp Err", err];
-  } // creat a statement for querying
-
+    return ctx.reply("Reg Exp Err" + err);
+  }
   db.find(statement, function(err, docs) {
     if (err) {
       console.log(err);
-      return ["ERROR", "DB Err", err];
+      return ctx.reply(err);
     }
 
     //DETECT whether t is a regex or plain text
     if (!realRegex(t)) {
       docs = newSort(docs);
     }
+
     const l = docs.length;
-    var pagelength = 15;
+
+    const pagelength = 15;
     if (page <= 1) page = 1;
     const pagecount = Math.ceil(l / pagelength);
     if (page * pagelength > l) page = pagecount;
@@ -238,14 +269,13 @@ function lookup(t) {
     // Markup
     const PGUP = t + " " + (page - 1); //First page?
     const PGDN = t + " " + (page + 1); //Last Page?
+    var btnArr = [];
+    if (page > 1) btnArr.push(["←" + (page - 1), PGUP]);
+    if (page < pagecount) btnArr.push([page + 1 + "→", PGDN]);
+    console.log("btns", btnArr);
     const pagibtn = Telegraf.Extra.HTML().markup(m =>
       m
-        .inlineKeyboard([
-          [
-            m.callbackButton("← " + (page - 1), PGUP),
-            m.callbackButton(page + 1 + " →", PGDN)
-          ]
-        ])
+        .inlineKeyboard([btnArr.map(btn => m.callbackButton(btn[0], btn[1]))])
         .resize()
     );
 
@@ -270,50 +300,13 @@ function lookup(t) {
     o = replaceall("| 〔", "|〔", o);
     o = o.replace(/( ?)([\u2460-\u24ff])/, " $2 ");
     o = o.replace(/  +/, " ");
+
     //TODO: pre-transcription
     console.log(o);
-    return ["DONE", o, pagibtn];
+    ctx.replyWithHTML(o, pagibtn);
   });
-}
-
-bot.on("text", ctx => {
-  var t = ctx.message.text.replace(/　/g, " ");
-  return 5;
-  if (t.indexOf("/") == 0) {
-    //deal with commands
-    var word = cmd(t, "/word");
-    if (word === "")
-      return ctx.reply("用法：\n /word <gibsun|ᡤᡳᠪᠰᡠᠨ|詞或整句> 查詢整個單詞");
-    if (word) {
-      t = "(^|\\s|/)" + word + "($|\\s|/)";
-    } else {
-      var begin = cmd(t, "/begin");
-      if (begin === "") {
-        return ctx.reply("/begin 前段一致，便於匹配動詞變形");
-      }
-      if (begin) {
-        t = "(^|\\s|/)" + begin;
-      }
-      var begin = undefined;
-      var end = cmd(t, "/end");
-      if (end === "") return ctx.reply("/end 後段一致匹配");
-      if (end) {
-        t = end + "($|\\s|/)";
-      }
-      var end = undefined;
-    }
-    var word = undefined;
-  }
-  console.log("LOOK up");
-  const findings = lookup(t);
-  if (findings[0] == "ERROR") {
-    return ctx.reply(findings.join("\n"));
-  } else {
-    return ctx.replyWithHtml(findings[1], findings[2]);
-    console.log("replied");
-  }
-  return "ok";
 });
+//bot.command("start", ctx => {});
 //=======
 
 //inline///////////////////////////////////////////
