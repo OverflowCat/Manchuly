@@ -5,6 +5,7 @@ dependencies:
   fast-json-stringify: 2.2.3
   lodash: 4.17.19
   nedb: 1.8.0
+  nedb-promises: 4.0.4
   opencc: 1.1.1
   pangu: 4.0.7
   replaceall: 0.1.6
@@ -629,6 +630,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
+  /nedb-promises/4.0.4:
+    dependencies:
+      nedb: 1.8.0
+    dev: false
+    resolution:
+      integrity: sha512-+z5kzrNOW0rDA1FiCfAtPGR7ZW3mnaOrYZytGAT0TbL6EqoEJUCxAuu9VME4+B1yZNG1gBx61F0c0jcacq1EsQ==
   /nedb/1.8.0:
     dependencies:
       async: 0.2.10
@@ -1130,6 +1137,7 @@ specifiers:
   fast-json-stringify: ^2.2.3
   lodash: ^4.17.19
   nedb: ^1.8.0
+  nedb-promises: ^4.0.4
   opencc: ^1.1.1
   pangu: ^4.0.7
   replaceall: ^0.1.6
