@@ -99,25 +99,42 @@ bot.on("text", async ctx => {
     var word = undefined;
   }
 
-  if (false) {
-    var page = 3;
-    var pagecount = 6;
-    // Markup
-    const PGUP = t + " " + (page - 1);
-    const PGDN = t + " " + (page + 1);
-    var btnArr = [];
-    if (page > 1) btnArr.push(["←" + (page - 1), PGUP]); // ! 1st page
-    if (page < pagecount) btnArr.push([page + 1 + "→", PGDN]); // ! last page
-    console.log("btns", btnArr);
-    const pagibtn = Telegraf.Extra.HTML().markup(m =>
-      m
-        .inlineKeyboard([btnArr.map(btn => m.callbackButton(btn[0], btn[1]))])
-        .resize()
-    );
-  }
   var findings = await lookup.any(t, "privatechat");
-  console.log(findings);
-  return ctx.replyWithHTML(findings[1]);
+  const RES = findings[1];
+  const btnArr = findings[2];
+  const PURE = RES.replace(/<[\s\S]+?>/g, "");
+
+  const pagibtns = Telegraf.Extra.HTML().markup(m =>
+    m
+      .inlineKeyboard([btnArr.map(btn => m.callbackButton(btn[0], btn[1]))])
+      .resize()
+  );
+  // console.log(pagibtns);
+  ctx.replyWithHTML("Length is " + PURE.length + " / " + RES.length);
+  if (false) {
+    if (RES.length >= 4096) {
+      // return ctx.replyWithHTML("Too big!!! Length is " + PURE.length);
+      var lines = RES.split("\n");
+      var charcount = 0;
+      var separations = [];
+      var ini = 0;
+      var end = 0;
+      const linescount = lines.length;
+      for (var i = 0; i < linescount; i++) {
+        const ele = lines[i];
+        charcount += ele.length;
+        if (charcount >= 4095 || i == linescount - 1) {
+          separations.push(lines.slice(ini, i).join("\n"));
+          ini = i;
+          charcount = 0;
+        }
+      }
+      return separations.map(separation =>
+        ctx.replyWithHTML(separation, pagibtns)
+      );
+    }
+  }
+  return ctx.replyWithHTML(findings[1], pagibtns);
 });
 
 //inline///////////////////////////////////////////

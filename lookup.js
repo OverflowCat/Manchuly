@@ -46,6 +46,7 @@ if (true) {
       var trimmed = jsonObj.map(item => {
         //console.log(item)
         item.d = item.d.split("||").join(",");
+        item["h"] = item["h"].split("||").join(",");
         item.d = item.d.replace(/([a-z@])(，|,)([a-z@])/g, "$1, $3");
         // item.d = item.d.replace(/(\[)((不)?及)(\] ?)/g, '<b>$2</b> ');
         var obj = {};
@@ -55,7 +56,9 @@ if (true) {
         return obj;
       });
       //db.insert(trimmed, function(err, newDoc) {console.log(newDoc.length);});
-      db.insert(trimmed).then(newDocs => console.log(newDocs.length));
+      db.insert(trimmed).then(newDocs =>
+        console.log("Database " + newDocs.length + " logs")
+      );
     });
 }
 
@@ -147,27 +150,22 @@ async function any(term, mode) {
 
   const l = docs.length;
 
-  const pagelength = 15;
+  const pagelength = 13;
   if (page <= 1) page = 1;
   const pagecount = Math.ceil(l / pagelength);
   if (page * pagelength > l) page = pagecount;
-  var o = t.bold() + " with ".italics();
+  var o = t.bold() + ": ";
+  var numb = "";
   if (l > pagelength) {
     // Pagination
-    docs = docs.slice(
-      pagelength * (page - 1),
-      page == pagecount ? l : pagelength * page
-    );
-    o += "page " + page + " of".italics() + " ";
+    var pageend = page == pagecount ? l : pagelength * page;
+    docs = docs.slice(pagelength * (page - 1), pageend);
+    numb += `Page ${page} / ${pagecount}, ${pagelength * (page - 1) +
+      1} ~ ${pagelength * page} <i>of</i> ${l} results`;
   }
-  o += l + " result".italics();
-  if (l > 1) {
-    o += "s".italics();
-  }
-  if (l != 0) {
-    o += ":\n";
-  }
-  console.log(o);
+  if (l > 1) numb += "s";
+  if (l != 0) numb += "\n";
+  o += numb.italics();
 
   var docso = "";
   docs.map(e => {
@@ -185,15 +183,20 @@ async function any(term, mode) {
   docso = undefined;
   o = o.replace("undefined", "");
   o = o.replace(/［[0-9]+］/g, "");
-  o = o.replace(/(@|v)/g, "ū");
-  o = o.replace(/(x|S)/g, "š");
+  o = o.replace(/(@|v)/g, "ū").replace(/(x|S)/g, "š");
   o = replaceall("| 〔", "|〔", o);
   o = o.replace(/( ?)([\u2460-\u24ff])/, " $2 "); //数字编号的空格
   o = o.replace(/  +/, " ");
 
   //TODO: pre-transcription
-  console.log(o);
-  return ["DONE", o, page];
+
+  // Markup
+  const PGUP = t + " " + (page - 1);
+  const PGDN = t + " " + (page + 1);
+  var btnArr = [];
+  if (page > 1) btnArr.push(["←" + (page - 1), PGUP]); // ! 1st page
+  if (page < pagecount) btnArr.push([page + 1 + "→", PGDN]); // ! last page
+  return ["DONE", o, btnArr];
 }
 
 module.exports = { any };
