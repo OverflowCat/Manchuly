@@ -8,6 +8,7 @@ const zhconverter = new OpenCC("t2s.json");
 const userdb = require("./user");
 const replaceall = require("replaceall");
 const pangu = require("pangu");
+//const lookup = require('./lookup')
 
 //userdb.c(114514, "lang", "zh_classic");
 //userdb.c(114515, "lang", "zh_classic");
@@ -128,13 +129,6 @@ bot.command("start", ctx => {
 bot.command("ping", ctx => ctx.reply("Pong!"));
 
 bot.on("text", async ctx => {
-  var t = ctx.message.text.replace(/　/g, " ");
-  //const isPage = /( (page|PAGE))? ([0-9]+)/.exec(t)
-  const segaments = t.split(" ");
-  var page = segaments.slice(-1)[0]; //Cannot be a constant!
-  page = /^[0-9]+$/.test(page) ? Number(segaments.pop()) : 1; // pop() 删除&返回数组最后一个元素
-  t = segaments.join(" ");
-
   if (t.indexOf("/") == 0) {
     var word = cmd(t, "/word");
     if (word === "")
@@ -160,6 +154,13 @@ bot.on("text", async ctx => {
     }
     var word = undefined;
   }
+
+  var t = ctx.message.text.replace(/　/g, " ");
+  //const isPage = /( (page|PAGE))? ([0-9]+)/.exec(t)
+  const segaments = t.split(" ");
+  var page = segaments.slice(-1)[0]; //Cannot be a constant!
+  page = /^[0-9]+$/.test(page) ? Number(segaments.pop()) : 1; // pop() 删除&返回数组最后一个元素
+  t = segaments.join(" ");
 
   try {
     var statement, newSort;
@@ -267,11 +268,11 @@ bot.on("text", async ctx => {
     console.log(o);
 
     // Markup
-    const PGUP = t + " " + (page - 1); //First page?
-    const PGDN = t + " " + (page + 1); //Last Page?
+    const PGUP = t + " " + (page - 1);
+    const PGDN = t + " " + (page + 1);
     var btnArr = [];
-    if (page > 1) btnArr.push(["←" + (page - 1), PGUP]);
-    if (page < pagecount) btnArr.push([page + 1 + "→", PGDN]);
+    if (page > 1) btnArr.push(["←" + (page - 1), PGUP]); // ! 1st page
+    if (page < pagecount) btnArr.push([page + 1 + "→", PGDN]); // ! last page
     console.log("btns", btnArr);
     const pagibtn = Telegraf.Extra.HTML().markup(m =>
       m
@@ -298,7 +299,7 @@ bot.on("text", async ctx => {
     o = o.replace(/(@|v)/g, "ū");
     o = o.replace(/(x|S)/g, "š");
     o = replaceall("| 〔", "|〔", o);
-    o = o.replace(/( ?)([\u2460-\u24ff])/, " $2 ");
+    o = o.replace(/( ?)([\u2460-\u24ff])/, " $2 "); //数字编号的空格
     o = o.replace(/  +/, " ");
 
     //TODO: pre-transcription
@@ -306,8 +307,6 @@ bot.on("text", async ctx => {
     ctx.replyWithHTML(o, pagibtn);
   });
 });
-//bot.command("start", ctx => {});
-//=======
 
 //inline///////////////////////////////////////////
 bot.on("inline_query", async ({ inlineQuery, answerInlineQuery }) => {
