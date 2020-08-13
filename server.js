@@ -40,7 +40,7 @@ setInterval(() => {
 }, 280000);
 
 const Telegraf = require("telegraf");
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(process.env.MNCL);
 
 bot.use((ctx, next) => {
   const start = new Date();
@@ -57,16 +57,21 @@ function cmd(t, c) {
   return false;
 }
 
+bot.catch(err => {
+  console.log("bot error: ", err);
+});
+
 bot.command("start", ctx => {
   ctx.replyWithPhoto({
     url:
       "https://cdn.glitch.com/e41d8351-01f6-4af8-b0ee-bd4710cb3769%2FA7BA13F8-3D6B-475B-9D23-98649A31754E.jpeg?v=1569678896904"
   });
-  return ctx.replyWithHTML(
+  ctx.replyWithHTML(
     "欢迎使用 @OverflowCat 的满洲里 bot。" +
       "阁下可以使用满语、转写或中文查询满语词汇。\n" +
       'Github repo: <a href="https://github.com/OverflowCat/Manchuly">OverflowCat/Manchuly</a>'
   );
+  return "ok";
 });
 
 bot.command("ping", ctx => ctx.reply("Pong!"));
@@ -142,7 +147,10 @@ async function together(ctx, _text, _mode) {
       }
       console.log(separations);
       // TODO: 单个词条长度过长，只能强制分页
-
+      separations.map((ele, index) => {
+        if (ele.length >= 2 ** 12) {
+        }
+      });
       const separationcount = separations.length;
       separations.map((separation, index) => {
         separation = separation.trim();
@@ -163,8 +171,7 @@ async function together(ctx, _text, _mode) {
 }
 
 bot.on("text", async ctx => {
-  await together(ctx, ctx.message.text, "chat");
-  return;
+  return await together(ctx, ctx.message.text, "chat");
 });
 
 bot.action(/^pgbtn /, async ctx => {
