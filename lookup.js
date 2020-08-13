@@ -62,6 +62,11 @@ if (true) {
     });
 }
 
+function divideByPunctuations(text) {
+  text = text.replace(/[，。？！、【】：；… ]+/, " ");
+  return text.split(" ");
+}
+
 async function any(term, mode) {
   var t = term.replace(/　/g, " ");
   //const isPage = /( (page|PAGE))? ([0-9]+)/.exec(t)
@@ -74,7 +79,7 @@ async function any(term, mode) {
     var statement, newSort;
     if (/[\u4e00-\u9fa5]+/.test(t)) {
       //ニカン語
-      // t = await simplify(t);
+      t = await simplify(t);
       console.log(t);
       statement = { zh: new RegExp(t, "gm") };
       newSort = function(array) {
@@ -84,13 +89,15 @@ async function any(term, mode) {
           return a.zh.length - b.zh.length;
         });
         // Sort with whole word match
-        if (false) {
+        if (true) {
+          //完全匹配
           array = array.sort(function(a, b) {
             //a = a.zh.includes(simplify(t));
             //b = b.zh.includes(simplify(t));
             //TODO: 批量分割
-            a = a.zh.split("；").includes(simplify(t));
-            b = b.zh.split("；").includes(simplify(t));
+            a = divideByPunctuations(a.zh).includes(t);
+            b = divideByPunctuations(b.zh).includes(t);
+            //console.log("| watai |〔副动〕非常，很，往死里： nure omire de watai amuran 极好饮酒。- ᡠᠮᡝᠰᡳ | umesi |〔副〕 ① 极，很，颇，甚，最，非常：umesi sain 很好。②全然，完全，十分，充分，确实".split(/\p{P}/));
             return b - a;
           });
         }
